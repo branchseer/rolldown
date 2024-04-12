@@ -18,7 +18,7 @@ use rolldown_common::{
   ModuleType, NamedImport, NormalModuleId, RawImportRecord, Specifier, StmtInfo, StmtInfos,
   SymbolRef,
 };
-use rolldown_error::BuildError;
+use rolldown_error::ScanWarning;
 use rolldown_oxc_utils::{BindingIdentifierExt, BindingPatternExt};
 use rolldown_rstr::{Rstr, ToRstr};
 use rustc_hash::FxHashMap;
@@ -37,7 +37,7 @@ pub struct ScanResult {
   pub default_export_ref: SymbolRef,
   pub imports: FxHashMap<Span, ImportRecordId>,
   pub exports_kind: ExportsKind,
-  pub warnings: Vec<BuildError>,
+  pub warnings: Vec<ScanWarning>,
 }
 
 pub struct AstScanner<'me> {
@@ -381,16 +381,13 @@ impl<'me> AstScanner<'me> {
     if self.symbol_table.get_flag(symbol_id).is_const_variable() {
       for reference in self.scope.get_resolved_references(symbol_id) {
         if reference.is_write() {
-          self.result.warnings.push(
-            BuildError::forbid_const_assign(
-              self.file_path.to_string(),
-              Arc::clone(self.source),
-              self.symbol_table.get_name(symbol_id).into(),
-              self.symbol_table.get_span(symbol_id),
-              reference.span(),
-            )
-            .with_severity_warning(),
-          );
+          self.result.warnings.push(ScanWarning::forbid_const_assign(
+            self.file_path.to_string(),
+            Arc::clone(self.source),
+            self.symbol_table.get_name(symbol_id).into(),
+            self.symbol_table.get_span(symbol_id),
+            reference.span(),
+          ));
         }
       }
     }

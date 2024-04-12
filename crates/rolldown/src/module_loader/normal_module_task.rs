@@ -86,7 +86,7 @@ impl NormalModuleTask {
       repr_name,
       warnings: scan_warnings,
     } = scan_result;
-    warnings.extend(scan_warnings);
+    warnings.extend(scan_warnings.into_iter().map(BuildError::from));
 
     let module = NormalModule {
       source,

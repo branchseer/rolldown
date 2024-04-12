@@ -59,7 +59,7 @@ impl BuildError {
 
   // --- private
 
-  fn new_inner(inner: impl Into<Box<dyn BuildEvent>>) -> Self {
+  pub(crate) fn new_inner(inner: impl Into<Box<dyn BuildEvent>>) -> Self {
     Self { inner: inner.into(), source: None, severity: Severity::Error }
   }
 }

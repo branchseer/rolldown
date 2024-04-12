@@ -1,3 +1,4 @@
+use bincode::{Decode, Encode};
 use std::sync::Arc;
 
 use oxc::span::Span;
@@ -6,7 +7,7 @@ use crate::{diagnostic::Diagnostic, types::diagnostic_options::DiagnosticOptions
 
 use super::BuildEvent;
 
-#[derive(Debug)]
+#[derive(Debug, Encode, Decode)]
 pub struct ForbidConstAssign {
   pub filename: String,
   pub source: Arc<str>,

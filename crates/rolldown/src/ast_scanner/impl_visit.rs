@@ -5,7 +5,7 @@ use oxc::{
   codegen::{self, Codegen, CodegenOptions, Gen},
 };
 use rolldown_common::ImportKind;
-use rolldown_error::BuildError;
+use rolldown_error::ScanWarning;
 use rolldown_oxc_utils::StatementExt;
 
 use super::{side_effect_detector::SideEffectDetector, AstScanner};
@@ -55,14 +55,11 @@ impl<'me, 'ast> Visit<'ast> for AstScanner<'me> {
           self.used_exports_ref = true;
         }
         if ident.name == "eval" {
-          self.result.warnings.push(
-            BuildError::unsupported_eval(
-              self.file_path.to_string(),
-              Arc::clone(self.source),
-              ident.span,
-            )
-            .with_severity_warning(),
-          );
+          self.result.warnings.push(ScanWarning::unsupported_eval(
+            self.file_path.to_string(),
+            Arc::clone(self.source),
+            ident.span,
+          ));
         }
       }
       _ => {}

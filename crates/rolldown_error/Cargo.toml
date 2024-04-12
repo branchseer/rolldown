@@ -15,6 +15,7 @@ workspace = true
 
 [dependencies]
 ariadne    = { workspace = true }
+bincode    = { workspace = true, features = ["derive"] }
 napi       = { workspace = true, optional = true }
 oxc        = { workspace = true }
 sugar_path = { workspace = true }

@@ -4,9 +4,12 @@ mod event_kind;
 mod events;
 mod types;
 mod utils;
+mod scan;
 
 pub use crate::{
   build_error::{BuildError, BuildResult},
   event_kind::EventKind,
   types::diagnostic_options::DiagnosticOptions,
 };
+
+pub use scan::ScanWarning;

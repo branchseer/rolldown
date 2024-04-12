@@ -1,10 +1,11 @@
+use bincode::{Decode, Encode};
 use index_vec::IndexVec;
 use oxc::{
   semantic::{ScopeId, SymbolFlags, SymbolId, SymbolTable},
   span::{CompactStr as CompactString, Span},
 };
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Encode, Decode)]
 pub struct AstSymbols {
   pub names: IndexVec<SymbolId, CompactString>,
   pub scope_ids: IndexVec<SymbolId, ScopeId>,

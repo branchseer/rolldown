@@ -14,10 +14,11 @@ repository.workspace = true
 workspace = true
 
 [dependencies]
+bincode            = { workspace = true, features = ["derive"] }
 anyhow             = { workspace = true }
 index_vec          = { workspace = true }
 once_cell          = { workspace = true }
-oxc                = { workspace = true, features = ["semantic"] }
+oxc                = { workspace = true, features = ["semantic", "bincode"] }
 regex              = { workspace = true }
 rolldown_fs        = { workspace = true }
 rolldown_rstr      = { workspace = true }

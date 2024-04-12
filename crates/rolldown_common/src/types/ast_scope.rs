@@ -1,7 +1,8 @@
+use bincode::{Decode, Encode};
 use index_vec::IndexVec;
 use oxc::semantic::{Reference, ReferenceId, ScopeTree, SymbolId};
 
-#[derive(Debug)]
+#[derive(Debug, Decode, Encode)]
 pub struct AstScope {
   inner: ScopeTree,
   references: IndexVec<ReferenceId, Reference>,

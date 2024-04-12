@@ -2,15 +2,15 @@
 //! - is meant to be a bundler-specialized string type for rolldown.
 //! - to smooth integration with `oxc`'s string types.
 
+use bincode::{Decode, Encode};
 use std::{fmt::Display, ops::Deref};
-
 /// `OxcStr` is a alias of string type oxc used internally.
 pub type OxcStr = oxc::span::CompactStr;
 
 mod to_str;
 pub use to_str::ToRstr;
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Encode, Decode)]
 pub struct Rstr(OxcStr);
 
 impl Rstr {

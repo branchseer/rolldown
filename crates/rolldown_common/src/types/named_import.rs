@@ -1,6 +1,7 @@
 use rolldown_rstr::Rstr;
 
 use crate::SymbolRef;
+use bincode::{Decode, Encode};
 
 use super::import_record::ImportRecordId;
 
@@ -8,7 +9,7 @@ use super::import_record::ImportRecordId;
 /// - Case A: `import { foo } from 'foo'`
 /// - Case B: `import * as fooNs from 'foo'`
 /// - Case C: `import { foo as foo2 } from 'foo'`
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Encode, Decode)]
 pub struct NamedImport {
   /// For case A, the `imported` is `foo`.
   /// For case B, the `imported` is meaningless.
@@ -21,7 +22,7 @@ pub struct NamedImport {
   pub record_id: ImportRecordId,
 }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Encode, Decode)]
 pub enum Specifier {
   Star,
   Literal(Rstr),

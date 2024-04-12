@@ -9,7 +9,8 @@ version              = "0.0.1"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-oxc = { workspace = true }
+bincode = { workspace = true, features = ["derive"] }
+oxc     = { workspace = true }
 
 [lints]
 workspace = true

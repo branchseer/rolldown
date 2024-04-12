@@ -1303,6 +1303,8 @@ name = "rolldown"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "bincode",
+ "derivative",
  "dunce",
  "futures",
  "glob",
@@ -1361,6 +1363,7 @@ name = "rolldown_common"
 version = "0.0.1"
 dependencies = [
  "anyhow",
+ "bincode",
  "index_vec",
  "once_cell",
  "oxc",
@@ -1431,6 +1434,7 @@ dependencies = [
 name = "rolldown_rstr"
 version = "0.0.1"
 dependencies = [
+ "bincode",
  "oxc",
 ]
 

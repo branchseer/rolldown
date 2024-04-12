@@ -1,14 +1,16 @@
 use std::fmt::Display;
 
+use bincode::{Decode, Encode};
 use rolldown_rstr::Rstr;
 
 use crate::{ModuleId, SymbolRef};
 
 index_vec::define_index_type! {
+  #[derive(Encode, Decode)]
   pub struct ImportRecordId = u32;
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Encode, Decode)]
 pub enum ImportKind {
   Import,
   DynamicImport,
@@ -44,7 +46,7 @@ impl Display for ImportKind {
   }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Encode, Decode)]
 pub struct RawImportRecord {
   // Module Request
   pub module_request: Rstr,

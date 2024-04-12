@@ -1,9 +1,10 @@
+use bincode::{Decode, Encode};
 use index_vec::IndexVec;
 use rustc_hash::FxHashMap;
 
 use crate::{ImportRecordId, SymbolRef};
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Encode, Decode)]
 pub struct StmtInfos {
   infos: IndexVec<StmtInfoId, StmtInfo>,
   // only for top level symbols
@@ -59,10 +60,11 @@ impl std::ops::DerefMut for StmtInfos {
 }
 
 index_vec::define_index_type! {
+  #[derive(Encode, Decode)]
   pub struct StmtInfoId = u32;
 }
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Encode, Decode)]
 pub struct StmtInfo {
   /// The index of this statement in the module body.
   ///

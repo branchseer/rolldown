@@ -1,6 +1,7 @@
 pub mod impl_visit;
 pub mod side_effect_detector;
 
+use bincode::{Decode, Encode};
 use index_vec::IndexVec;
 use oxc::{
   ast::{
@@ -26,7 +27,7 @@ use std::sync::Arc;
 
 use super::types::ast_symbols::AstSymbols;
 
-#[derive(Debug)]
+#[derive(Debug, Encode, Decode)]
 pub struct ScanResult {
   pub repr_name: String,
   pub named_imports: FxHashMap<SymbolRef, NamedImport>,

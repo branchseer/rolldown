@@ -1,4 +1,6 @@
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+use bincode::{Decode, Encode};
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Encode, Decode)]
 pub enum ExportsKind {
   Esm,
   CommonJs,

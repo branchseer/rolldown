@@ -1,5 +1,7 @@
 use std::{path::Path, sync::Arc};
 
+use bincode::{Decode, Encode};
+
 use anyhow::Result;
 use futures::future::join_all;
 use index_vec::IndexVec;
@@ -27,6 +29,15 @@ pub struct NormalModuleTask {
   resolved_path: ResolvedPath,
   module_type: ModuleType,
   errors: Vec<BuildError>,
+}
+
+#[derive(Encode, Decode)]
+pub struct ScanOutput {
+  ast: OxcAst,
+  scope: AstScope,
+  scan_result: ScanResult,
+  ast_symbol: AstSymbols,
+  namespace_symbol: SymbolRef,
 }
 
 impl NormalModuleTask {
@@ -69,7 +80,7 @@ impl NormalModuleTask {
         .await?
         .into();
 
-    let (ast, scope, scan_result, ast_symbol, namespace_symbol) = self.scan(&source);
+    let ScanOutput { ast, scope, scan_result, ast_symbol, namespace_symbol } = self.scan(&source);
     tracing::trace!("scan {:?}", self.resolved_path);
 
     let res = self.resolve_dependencies(&scan_result.import_records).await?;
@@ -132,7 +143,7 @@ impl NormalModuleTask {
     Ok(())
   }
 
-  fn scan(&self, source: &Arc<str>) -> (OxcAst, AstScope, ScanResult, AstSymbols, SymbolRef) {
+  fn scan(&self, source: &Arc<str>) -> ScanOutput {
     fn determine_oxc_source_type(path: impl AsRef<Path>, ty: ModuleType) -> SourceType {
       // Determine oxc source type for parsing
       let mut default = SourceType::default().with_module(true);
@@ -181,7 +192,13 @@ impl NormalModuleTask {
     program.hoist_import_export_from_stmts();
     let scan_result = scanner.scan(program.program());
 
-    (program, ast_scope, scan_result, symbol_for_module, namespace_symbol)
+    ScanOutput {
+      ast: program,
+      scope: ast_scope,
+      scan_result,
+      ast_symbol: symbol_for_module,
+      namespace_symbol,
+    }
   }
 
   #[allow(clippy::option_if_let_else)]

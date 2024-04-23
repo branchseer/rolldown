@@ -1402,6 +1402,7 @@ dependencies = [
 name = "rolldown_oxc_utils"
 version = "0.1.0"
 dependencies = [
+ "bincode",
  "oxc",
  "self_cell",
  "smallvec",

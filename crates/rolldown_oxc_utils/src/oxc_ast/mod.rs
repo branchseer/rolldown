@@ -1,6 +1,7 @@
 use std::{fmt::Debug, sync::Arc};
 
 use crate::OxcCompiler;
+use bincode::{Decode, Encode};
 use oxc::{allocator::Allocator, ast::ast::Program, span::SourceType};
 
 use self_cell::self_cell;
@@ -55,6 +56,32 @@ impl OxcAst {
     })
   }
 }
+
+impl Encode for OxcAst {
+  fn encode<E: bincode::enc::Encoder>(
+    &self,
+    encoder: &mut E,
+  ) -> Result<(), bincode::error::EncodeError> {
+    self.inner.borrow_owner().0.encode(encoder)?;
+    self.inner.borrow_dependent().encode(encoder)?;
+    Ok(())
+  }
+}
+
+impl<C> Decode<C> for OxcAst {
+  fn decode<D: bincode::de::Decoder<Ctx = C>>(
+    decoder: &mut D,
+  ) -> Result<Self, bincode::error::DecodeError> {
+    let source = Arc::<str>::decode(decoder)?;
+    let inner = Inner::try_new((source, Allocator::default()), |owner| {
+      let mut allocator = &owner.1;
+      Program::decode(&mut decoder.with_ctx(&mut allocator))
+    })?;
+    Ok(Self { inner })
+  }
+}
+
+bincode::impl_borrow_decode!(OxcAst);
 
 pub struct WithFieldsMut<'outer, 'inner> {
   pub source: &'inner Arc<str>,

@@ -13,7 +13,8 @@ repository.workspace = true
 workspace = true
 
 [dependencies]
-oxc = { workspace = true, features = ["semantic", "codegen"] }
+bincode = { workspace = true, features = ["derive"] }
+oxc     = { workspace = true, features = ["semantic", "codegen"] }
 
 self_cell = { workspace = true }
 smallvec  = { workspace = true }

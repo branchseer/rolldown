@@ -31,6 +31,68 @@ pub struct NormalModuleTask {
   errors: Vec<BuildError>,
 }
 
+pub fn scan(
+  path: Arc<str>,
+  module_type: ModuleType,
+  module_id: NormalModuleId,
+  source: &Arc<str>,
+) -> ScanOutput {
+  fn determine_oxc_source_type(path: impl AsRef<Path>, ty: ModuleType) -> SourceType {
+    // Determine oxc source type for parsing
+    let mut default = SourceType::default().with_module(true);
+    // Rolldown considers module as esm by default.
+    debug_assert!(default.is_module());
+    debug_assert!(default.is_javascript());
+    debug_assert!(!default.is_jsx());
+    let extension = path.as_ref().extension().and_then(std::ffi::OsStr::to_str);
+    default = match ty {
+      ModuleType::CJS | ModuleType::CjsPackageJson => default.with_script(true),
+      _ => default,
+    };
+    if let Some(ext) = extension {
+      default = match ext {
+        "cjs" => default.with_script(true),
+        "jsx" => default.with_jsx(true),
+        _ => default,
+      };
+    };
+    default
+  }
+
+  let source_type = determine_oxc_source_type(path.as_path(), module_type);
+  let mut program = OxcCompiler::parse(Arc::clone(source), source_type);
+
+  let (mut symbol_table, scope) = program.make_symbol_table_and_scope_tree();
+  let ast_scope = AstScope::new(
+    scope,
+    std::mem::take(&mut symbol_table.references),
+    std::mem::take(&mut symbol_table.resolved_references),
+  );
+  let mut symbol_for_module = AstSymbols::from_symbol_table(symbol_table);
+  let file_path = path.into();
+  let repr_name = FilePath::representative_name(&file_path);
+  let scanner = AstScanner::new(
+    module_id,
+    &ast_scope,
+    &mut symbol_for_module,
+    repr_name.into_owned(),
+    module_type,
+    source,
+    &file_path,
+  );
+  let namespace_symbol = scanner.namespace_ref;
+  program.hoist_import_export_from_stmts();
+  let scan_result = scanner.scan(program.program());
+
+  ScanOutput {
+    ast: program,
+    scope: ast_scope,
+    scan_result,
+    ast_symbol: symbol_for_module,
+    namespace_symbol,
+  }
+}
+
 #[derive(Encode, Decode)]
 pub struct ScanOutput {
   ast: OxcAst,
@@ -144,61 +206,7 @@ impl NormalModuleTask {
   }
 
   fn scan(&self, source: &Arc<str>) -> ScanOutput {
-    fn determine_oxc_source_type(path: impl AsRef<Path>, ty: ModuleType) -> SourceType {
-      // Determine oxc source type for parsing
-      let mut default = SourceType::default().with_module(true);
-      // Rolldown considers module as esm by default.
-      debug_assert!(default.is_module());
-      debug_assert!(default.is_javascript());
-      debug_assert!(!default.is_jsx());
-      let extension = path.as_ref().extension().and_then(std::ffi::OsStr::to_str);
-      default = match ty {
-        ModuleType::CJS | ModuleType::CjsPackageJson => default.with_script(true),
-        _ => default,
-      };
-      if let Some(ext) = extension {
-        default = match ext {
-          "cjs" => default.with_script(true),
-          "jsx" => default.with_jsx(true),
-          _ => default,
-        };
-      };
-      default
-    }
-
-    let source_type =
-      determine_oxc_source_type(self.resolved_path.path.as_path(), self.module_type);
-    let mut program = OxcCompiler::parse(Arc::clone(source), source_type);
-
-    let (mut symbol_table, scope) = program.make_symbol_table_and_scope_tree();
-    let ast_scope = AstScope::new(
-      scope,
-      std::mem::take(&mut symbol_table.references),
-      std::mem::take(&mut symbol_table.resolved_references),
-    );
-    let mut symbol_for_module = AstSymbols::from_symbol_table(symbol_table);
-    let file_path = Arc::<str>::clone(&self.resolved_path.path).into();
-    let repr_name = FilePath::representative_name(&file_path);
-    let scanner = AstScanner::new(
-      self.module_id,
-      &ast_scope,
-      &mut symbol_for_module,
-      repr_name.into_owned(),
-      self.module_type,
-      source,
-      &file_path,
-    );
-    let namespace_symbol = scanner.namespace_ref;
-    program.hoist_import_export_from_stmts();
-    let scan_result = scanner.scan(program.program());
-
-    ScanOutput {
-      ast: program,
-      scope: ast_scope,
-      scan_result,
-      ast_symbol: symbol_for_module,
-      namespace_symbol,
-    }
+    scan(self.resolved_path.path.clone(), self.module_type, self.module_id, &source)
   }
 
   #[allow(clippy::option_if_let_else)]

@@ -24,4 +24,5 @@ pub use crate::{
 
 pub use rolldown_common::bundler_options::*;
 
+pub use module_loader::{scan, ScanOutput};
 pub use rolldown_resolver::ResolveOptions;

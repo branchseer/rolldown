@@ -6,6 +6,10 @@ name                 = "rolldown"
 repository.workspace = true
 version              = "0.1.0"
 
+[[bench]]
+harness = false
+name    = "scan"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lints]
@@ -38,6 +42,7 @@ tracing            = { workspace = true }
 xxhash-rust        = { workspace = true, features = ["xxh3"] }
 
 [dev-dependencies]
+criterion        = { package = "criterion2", version = "0.7.2", default-features = false }
 glob             = { workspace = true }
 insta            = { workspace = true }
 rolldown_testing = { workspace = true }

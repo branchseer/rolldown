@@ -5,6 +5,8 @@ mod runtime_normal_module_task;
 pub mod task_context;
 mod task_result;
 
+pub use normal_module_task::{scan, ScanOutput};
+
 pub use module_loader::ModuleLoader;
 use rolldown_error::BuildError;
 

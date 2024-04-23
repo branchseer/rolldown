@@ -286,7 +286,7 @@ impl<'ast> AstSnippet<'ast> {
       ast::NumericLiteral {
         span: TakeIn::dummy(self.alloc),
         value,
-        raw: self.alloc.alloc(value.to_string()),
+        raw: (self.alloc.alloc_str(value.to_string().as_str()) as &str).into(),
         base: oxc::syntax::NumberBase::Decimal,
       }
       .into_in(self.alloc),
